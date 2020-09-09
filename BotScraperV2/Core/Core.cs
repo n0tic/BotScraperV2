@@ -232,11 +232,15 @@ namespace BotScraperV2
                     }
                     catch (JsonException x) { WriteLine(x.Message, LogType.Console); }
                 }
-                else WriteLine(tmpJson, LogType.Console);
+                else
+                {
+                    remote = null;
+                    WriteLine(tmpJson, LogType.Console);
+                }
             }
 
-            if (Convert.ToDateTime(local.lastUpdated) > Convert.ToDateTime(remote.lastUpdated)) return local;
-            else if (Convert.ToDateTime(remote.lastUpdated) > Convert.ToDateTime(local.lastUpdated)) return remote;
+            if (remote == null) return local;
+            else if (remote != null) return remote;
             else return new BotsData();
         }
 
