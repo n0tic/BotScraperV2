@@ -154,7 +154,7 @@ namespace BotScraperV2
                             break;
                         }
                         runWorker = false;
-                        Core.WriteLine("Worker is will finish the current work and then stop...", Core.LogType.Requested);
+                        Core.WriteLine("Worker is scheduled to stop. Please allow up to " + Core.updateTimerSeconds.ToString() + " second(s) to finish current work.", Core.LogType.Requested);
                         break;
 
                     #endregion Case stop
@@ -250,6 +250,7 @@ namespace BotScraperV2
             string sendString = Core.softwareName + " " + Core.GetVersion() + "'s worker was launched at " + startTimer.ToString() + "." +
                 "\n\rWorker is currently " + Core.ResolveBool(botScraperThread.IsAlive) + "." +
                 "\n\rWork has passed the loop " + loops.ToString() + " time(s)." +
+                "\n\rWork loop timer is set to " + Core.updateTimerSeconds.ToString() + " second(s)." +
                 "\n\rStarted " + started.ToString() + " time(s)." +
                 "\n\rStopped " + stopped.ToString() + " time(s).  " +
                 "\n\rWorker currently has a total of " + bots.bot.Count.ToString() + " bot(s) marked as active. " +
