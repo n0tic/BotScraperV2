@@ -1,12 +1,16 @@
 # BotScraper V2
 ![](http://bytevaultstudio.se/ShareX/CB5qyH6HSc.gif)
 
-This scraper project is the second evolution of BotScraper.
-The first bot was simply a console window doing synchronously work on one single thread and had no command input or different colorations of the text.
+The first version was simply a console application doing synchronous work on one single thread and had no command input or different colorations of the text.
 
-This project however was created in order to make it a bit nicer with text colors, logging, threads, command inputs etc.
+This second evolution of this project was created in order to make it better in every aspect.
+- Threading > Menu will be on the Main-thread and worker on a background thread.
+- A menu which responds to command inputs.
+- Console output design has Different colorations, types and a timestamp.
+- Almost all console outputs will get logged to a logfile.
+- Framework upgrade from .NET 4.5 > .NET Core 3.1
 
-So, Why did you make this software?
+###### So, Why did you make this software?
 Most of my recent projects has been involving twitch. Either I have worked with the Twitch API or the Twitch chat (TMI).
 So I wanted to be able to distinguish between real chatters and bots. The API or chatters.json doesnt seperate the bots from the real chaters.
 This is where I started searching the internet for a solution but I came across a website which had a list. This website used json.
