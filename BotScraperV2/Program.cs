@@ -23,6 +23,24 @@ namespace BotScraperV2
         static DownloadedData downloadedData;
         static BotsData bots = new BotsData();
 
+        /// <summary>
+        /// Setup SSL, title and quick edit mode.
+        /// </summary>
+        private static void Setup()
+        {
+            Console.Title = Core.softwareName;
+
+            //Allow usage of HTTPS/secure protocol
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
+            //Disable quick edit of console window
+            Core.SetQuickEdit(false);
+        }
+
+        /// <summary>
+        /// Main program initialization
+        /// </summary>
+        /// <param name="args"></param>
         private static void Main(string[] args)
         {
             //Setup console
@@ -59,15 +77,6 @@ namespace BotScraperV2
                 //Loop main menu.
                 MainMenu();
             }
-        }
-
-        private static void Setup()
-        {
-            //Allow usage of HTTPS/secure protocol
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-
-            //Disable quick edit of console window
-            Core.SetQuickEdit(false);
         }
 
         /// <summary>
@@ -178,7 +187,7 @@ namespace BotScraperV2
                         downloadedData = Core.Download<DownloadedData>(Core.scrapeURL); // Download new data
 
                         //Create update bots data
-                        PerformWorkOnData(downloadedData); // Perform work on the new data
+                        UpdateBotsData(downloadedData); // Perform work on the new data
                         Core.WriteLine("Download Complete.", Core.LogType.Requested);
                         break;
 
@@ -272,16 +281,16 @@ namespace BotScraperV2
 
             while (runWorker)
             {
-                if (debug) Core.WriteLine("New Loop...");
+                if (debug) Core.WriteLine("New Loop...", Core.LogType.Worker);
                 //Keep track of how many software-loops have been started.
                 loops++;
 
                 //Clean
-                if (debug) Core.WriteLine("Cleaning data...");
+                if (debug) Core.WriteLine("Cleaning data...", Core.LogType.Worker);
                 CleanData();
 
                 //Download new bot-data
-                if (debug) Core.WriteLine("Download new data...");
+                if (debug) Core.WriteLine("Download new data...", Core.LogType.Worker);
                 downloadedData = Core.Download<DownloadedData>(Core.scrapeURL);
 
                 if (downloadedData == null)
@@ -291,23 +300,63 @@ namespace BotScraperV2
                 }
 
                 //Create update bots data
-                PerformWorkOnData(downloadedData);
+                if (debug) Core.WriteLine("Building database data...", Core.LogType.Worker);
+                UpdateBotsData(downloadedData);
+
+                //Clean out old bots
+                if(debug) Core.WriteLine("Checking for old bots...", Core.LogType.Worker);
+                CleanOutOldBots();
 
                 //Save local json file
-                if (debug) Core.WriteLine("Saving bot data to local file...");
+                if (debug) Core.WriteLine("Saving bot data to local file...", Core.LogType.Worker);
                 string json = SaveDataToLocalJsonFile();
 
                 //Upload Data
-                if (debug) Core.WriteLine("Upload checking...");
+                if (debug) Core.WriteLine("Upload checking...", Core.LogType.Worker);
                 UploadJsonToDatabase(json);
 
                 //We wait before running the bot again.
-                if (debug) Core.WriteLine("Waiting for another pass to start...");
+                if (debug) Core.WriteLine("Waiting for another pass to start...", Core.LogType.Worker);
                 Thread.Sleep(Core.ResolveSecondsToMilliseconds(Core.updateTimerSeconds));
             }
 
             stopped++;
             Core.WriteLine("Worker stopped...", Core.LogType.Worker);
+        }
+
+        /// <summary>
+        /// Checks data to see if any element is too old
+        /// If any element is found to be too old it gets removed.
+        /// </summary>
+        private static void CleanOutOldBots()
+        {
+            List<int> indexesToRemove = new List<int>();
+
+            for (int i = 0; i < bots.bot.Count; i++)
+            {
+                if (IsBotTooOld(i))
+                {
+                    if (debug) Core.WriteLine("Detected an inactive bot at " + i.ToString() + ". Removing...", Core.LogType.Worker);
+                    indexesToRemove.Add(i);
+                }
+            }
+
+            //Remove data that are too old
+            if (indexesToRemove.Count > 0)
+            {
+                indexesToRemove.Reverse(); // Go through all indexes from highest to lowest to not change order when removing.
+                foreach (int i in indexesToRemove)
+                {
+                    try
+                    {
+                        bots.bot.RemoveAt(i); // Remove bot
+                        removedIndexesCount++;
+                    }
+                    catch(ArgumentOutOfRangeException x) { Core.WriteLine(x.Message, Core.LogType.Console); }
+                }
+            } else if(debug) Core.WriteLine("Found no bots which are too old...", Core.LogType.Worker);
+
+            bots.lastUpdated = DateTime.Now.ToString("dd/MM/yyy HH:mm:ss");
         }
 
         /// <summary>
@@ -336,11 +385,11 @@ namespace BotScraperV2
             {
                 json = JsonConvert.SerializeObject(bots);
             }
-            catch (JsonException x) { Core.WriteLine(x.Message, Core.LogType.Console); }
+            catch (JsonException x) { Core.WriteLine(x.Message, Core.LogType.Worker); }
 
             if (json == "")
             {
-                Core.WriteLine("Something went wrong. Json was \"\" - String.Empty", Core.LogType.Console);
+                Core.WriteLine("Something went wrong. Json was \"\" - String.Empty", Core.LogType.Worker);
                 return "";
             }
 
@@ -362,53 +411,24 @@ namespace BotScraperV2
         /// Performs work on data as add new bot, remove old bot, update bot.
         /// </summary>
         /// <param name="downloadedData"></param>
-        private static void PerformWorkOnData(DownloadedData downloadedData)
+        private static void UpdateBotsData(DownloadedData downloadedData)
         {
-            List<int> indexesToRemove = new List<int>();
-
             for (int i = 0; i < downloadedData.Bots.Count; i++)
             {
                 //If the bot doesn't exist in the database - Add the bot
                 if (!DoesBotAlreadyExist(downloadedData.Bots[i][0]))
                 {
-                    if (debug) Core.WriteLine("Adding a new bot...");
+                    if (debug) Core.WriteLine("Adding a new bot...", Core.LogType.Worker);
                     bots.AddBot(downloadedData.Bots[i][0], Int32.Parse(downloadedData.Bots[i][1]), long.Parse(downloadedData.Bots[i][2]));
                 }
                 else // If the bot does exist
                 {
-                    if (IsBotTooOld(i))
-                    {
-                        if (debug) Core.WriteLine("Detected an inactive bot at " + i.ToString() + ". Removing...");
-                        indexesToRemove.Add(i);
-                    }
-                    else
-                    {
-                        //Update data to new data.
-                        if (debug) Core.WriteLine("Updating bot data...");
-                        bots.bot[i].timesSeen = Int32.Parse(downloadedData.Bots[i][1]);
-                        bots.bot[i].lastSeen = long.Parse(downloadedData.Bots[i][2]);
-                    }
+                    //Update data to new data.
+                    if (debug) Core.WriteLine("Updating bot data...", Core.LogType.Worker);
+                    bots.bot[i].timesSeen = Int32.Parse(downloadedData.Bots[i][1]);
+                    bots.bot[i].lastSeen = long.Parse(downloadedData.Bots[i][2]);
                 }
             }
-
-            //Remove data that are too old
-            if(indexesToRemove.Count > 0)
-            {
-                indexesToRemove.Reverse(); // Go through all indexes from highest to lowest to not change order when removing.
-                foreach (int i in indexesToRemove)
-                {
-                    try
-                    {
-                        bots.bot.RemoveAt(i); // Remove bot
-                        removedIndexesCount++;
-                    }
-                    catch(ArgumentOutOfRangeException x) { Core.WriteLine(x.Message, Core.LogType.Console); }
-                }
-                indexesToRemove.Clear();
-            }
-
-            bots.lastUpdated = DateTime.Now.ToString("dd/MM/yyy HH:mm:ss");
-            GC.Collect();
         }
 
         /// <summary>
