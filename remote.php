@@ -11,7 +11,7 @@ if(isset($_GET['u']))
 } else if(isset($_GET['d'])) // Download
 {
 	header('Content-Type: application/json;charset=utf-8');
-    $data = NULL;
+    	$data = NULL;
 	
 	if(file_exists('bots.json'))
 	{
