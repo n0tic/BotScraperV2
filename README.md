@@ -5,7 +5,6 @@ This scraper project is the second evolution of BotScraper.
 The first bot was simply a console window doing synchronously work on one single thread and had no command input or different colorations of the text.
 
 This project however was created in order to make it a bit nicer with text colors, logging, threads, command inputs etc.
-PHP / Server files are not included in this repo. Yet.
 
 So, Why did you make this software?
 Most of my recent projects has been involving twitch. Either I have worked with the Twitch API or the Twitch chat (TMI).
