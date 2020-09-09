@@ -1,0 +1,1 @@
+﻿Add checks for when data is updating to be unaccessable until finished.
