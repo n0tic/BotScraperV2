@@ -1,1 +1,1 @@
-﻿Add checks for when data is updating to be unaccessable until finished.
+﻿FIX 7 DAYS TIME DIFFERENCE BUG - Im stupid.

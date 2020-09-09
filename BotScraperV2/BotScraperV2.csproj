@@ -3,6 +3,20 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <StartupObject>BotScraperV2.Program</StartupObject>
+    <NoWin32Manifest>true</NoWin32Manifest>
+    <Version>0.0.1</Version>
+    <Company>ByteVault Studio</Company>
+    <Authors>N0tiC</Authors>
+    <Description>A software which "scrapes" data from a remote source to create a local database with remote save feature.</Description>
+    <Copyright>ByteVault Studio 2020</Copyright>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Optimize>true</Optimize>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
 
   <ItemGroup>

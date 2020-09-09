@@ -13,26 +13,34 @@ namespace BotScraperV2
     {
         #region Static App Information
 
+        //Send debug information to the console.
         public static bool debug = false;
 
+        //Static software information
         public static string softwareName = "BotScraper V2";
         public static string authorName = "N0tiC";
         public static string authorRealName = "Victor R";
 
+        //Time vars
         public static int updateTimerSeconds = 25;
+        public static int maxDaysDifference = 7;
+        //Static epoch time
+        public static DateTime epochTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
+        //URLs
         public static string scrapeURL = "";
-
-
         public static string downloadURL = "";
         public static string uploadURL = "";
-
-        public static DateTime epochTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         #endregion Static App Information
 
         #region BotScraperV2
 
+        /// <summary>
+        ///Turns seconds into milliseconds
+        /// </summary>
+        /// <param name="seconds"></param>
+        /// <returns></returns>
         internal static int ResolveSecondsToMilliseconds(int seconds) => seconds * 1000;
 
         /// <summary>
@@ -40,9 +48,9 @@ namespace BotScraperV2
         /// </summary>
         internal enum LogType
         {
-            Console,
-            Worker,
-            Requested
+            Console, // Console outbut - Debug, Error, Warnings
+            Worker, // Worker output
+            Requested // User Requested Data
         }
 
         /// <summary>
@@ -56,7 +64,7 @@ namespace BotScraperV2
             if (logType == LogType.Console)
             {
                 Console.ForegroundColor = ConsoleColor.Red; // Set Color
-                Console.Write("[Console]"); // If Console output
+                Console.Write("[Console]");
                 logMessage += "[Console]";
             }
             else if (logType == LogType.Worker)
@@ -68,7 +76,7 @@ namespace BotScraperV2
             else
             {
                 Console.ForegroundColor = ConsoleColor.DarkGreen; // Set Color
-                Console.Write("[Requested]"); // If User Output
+                Console.Write("[Requested]");
                 logMessage += "[Requested]";
             }
             Console.ForegroundColor = ConsoleColor.Cyan; // Set Color
@@ -105,11 +113,16 @@ namespace BotScraperV2
         /// <returns></returns>
         internal static DateTime TranslateLongToDateTime(long time)
         {
-            TimeSpan timeSpan = TimeSpan.FromSeconds(time);
-            DateTime localDateTime = Core.epochTime.Add(timeSpan).ToLocalTime();
-            return localDateTime;
+            TimeSpan timeSpan = TimeSpan.FromSeconds(time); // Gets timespan from long time
+            DateTime localDateTime = Core.epochTime.Add(timeSpan).ToLocalTime(); // Adds seconds to epochTime
+            return localDateTime; // Returns DateTime
         }
 
+        /// <summary>
+        /// Takes boolean and returns string
+        /// </summary>
+        /// <param name="state"></param>
+        /// <returns>ONLINE - OFFLINE</returns>
         internal static string ResolveBool(bool state)
         {
             if (state) return "ONLINE";
@@ -120,11 +133,13 @@ namespace BotScraperV2
 
         #region Version
 
+        //Version Data
         public static BuildTypes buildType = BuildTypes.Alpha;
         public static int majorVersion = 0;
         public static int minorVersion = 0;
         public static int buildVersion = 1;
 
+        //Build Types
         public enum BuildTypes
         {
             Alpha,
@@ -132,11 +147,16 @@ namespace BotScraperV2
             Normal
         }
 
+        /// <summary>
+        /// Returns a string combined with 3 subversions and type.
+        /// </summary>
+        /// <returns> x.x.x Type</returns>
         public static string GetVersion() => majorVersion.ToString() + "." + minorVersion.ToString() + "." + buildVersion.ToString() + " " + buildType.ToString();
 
         #endregion Version
 
         #region Networking
+
         /// <summary>
         /// Check if Internet is available
         /// </summary>
@@ -147,7 +167,7 @@ namespace BotScraperV2
             {
                 using (var client = new WebClient().OpenRead("http://www.google.com/"))
                 {
-                    return true;
+                    return true; // Return true if website was successfully reached.
                 }
             }
             catch (ArgumentNullException x) { WriteLine(x.Message, LogType.Console); return false; }
@@ -166,15 +186,15 @@ namespace BotScraperV2
             {
                 try
                 {
-                    string tmpString = wc.DownloadString(new Uri(url + "?" + GetUTCTime()));
-                    return (T)JsonConvert.DeserializeObject<T>(tmpString);
+                    string tmpString = wc.DownloadString(new Uri(url + "?" + GetUTCTime())); // Get a string with Json-Data with UTC Identifier to bypass cache.
+                    return (T)JsonConvert.DeserializeObject<T>(tmpString); // Return Serilized object.
                 }
                 catch (ArgumentNullException x) { Core.WriteLine(x.Message, LogType.Console); }
                 catch (WebException x) { Core.WriteLine(x.Message, LogType.Console); }
                 catch (NotSupportedException x) { Core.WriteLine(x.Message, LogType.Console); }
                 catch (Exception x) { Core.WriteLine(x.Message, LogType.Console); }
             }
-            return default;
+            return default; //  Return "new T();"
         }
 
         /// <summary>
@@ -187,6 +207,10 @@ namespace BotScraperV2
             return unixTimestamp.ToString();
         }
 
+        /// <summary>
+        /// Load previous session data from URL then local, returns BotsData. Favours Online Version
+        /// </summary>
+        /// <returns>BotsData</returns>
         internal static BotsData LoadPreviousSession()
         {
             BotsData local = new BotsData();
@@ -239,11 +263,15 @@ namespace BotScraperV2
                 }
             }
 
-            if (remote == null) return local;
+            if (remote == null) return local; // Favor remote if it isnt null
             else if (remote != null) return remote;
             else return new BotsData();
         }
 
+        /// <summary>
+        /// Upload BotsData to remote server
+        /// </summary>
+        /// <param name="json"></param>
         internal static void UploadJsonData(string json)
         {
             try
@@ -257,12 +285,17 @@ namespace BotScraperV2
         #endregion Networking
 
         #region Folders & Files
+
         /// <summary>
         /// Returns root folder
         /// </summary>
         /// <returns></returns>
         internal static string GetRootDirectory() => @AppDomain.CurrentDomain.BaseDirectory;
 
+        /// <summary>
+        /// Save BotsData to local file.
+        /// </summary>
+        /// <param name="json"></param>
         internal static void SaveJsonFile(string json)
         {
             string filename = "bots.json";
@@ -279,6 +312,10 @@ namespace BotScraperV2
             catch (IOException x) { WriteLine(x.Message, LogType.Console); }
         }
 
+        /// <summary>
+        /// Write message to log
+        /// </summary>
+        /// <param name="logMessage"></param>
         static void WriteLog(string logMessage)
         {
             try
@@ -301,6 +338,10 @@ namespace BotScraperV2
         #endregion Folders & Files
 
         #region QuickEdit Options
+
+        /*
+         So this part allowes me to enable and disable Console Quick Edit Mode.
+         */
 
         private const uint ENABLE_QUICK_EDIT = 0x0040;
 

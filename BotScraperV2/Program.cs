@@ -78,10 +78,12 @@ namespace BotScraperV2
             Thread.Sleep(100);
             Console.WriteLine("? or help will show commands");
             Console.WriteLine("Enter a command:");
-            while (runMainMenu)
+            while (runMainMenu) // Lock the user in the menu loop
             {
-                switch (Console.ReadLine().ToLower())
+                switch (Console.ReadLine().ToLower()) // Get user input as lower case
                 {
+                    //Nice case devided switch case
+
                     #region Case help
 
                     case "?":
@@ -162,8 +164,8 @@ namespace BotScraperV2
                     #region Case upload
 
                     case "upload":
-                        string json = SaveDataToLocalJsonFile();
-                        UploadJsonToDatabase(json);
+                        string json = SaveDataToLocalJsonFile(); // Save file (to get string)
+                        UploadJsonToDatabase(json); // Upload file
                         Core.WriteLine("Upload complete.", Core.LogType.Requested);
                         break;
 
@@ -173,10 +175,10 @@ namespace BotScraperV2
 
                     case "download":
                         //Download new bot-data
-                        downloadedData = Core.Download<DownloadedData>(Core.scrapeURL);
+                        downloadedData = Core.Download<DownloadedData>(Core.scrapeURL); // Download new data
 
                         //Create update bots data
-                        PerformWorkOnData(downloadedData);
+                        PerformWorkOnData(downloadedData); // Perform work on the new data
                         Core.WriteLine("Download Complete.", Core.LogType.Requested);
                         break;
 
@@ -214,12 +216,10 @@ namespace BotScraperV2
                         {
                             if (bots.bot.Count > 0)
                             {
+                                // List bots if there are any in the list
                                 foreach (Bot bot in bots.bot) Core.WriteLine(bot.name + " has been sighted " + bot.timesSeen.ToString() + " times and was last seen: " + Core.TranslateLongToDateTime(bot.lastSeen).ToString(), Core.LogType.Requested);
                             }
-                            else
-                            {
-                                Core.WriteLine("There are no bots in the list.", Core.LogType.Requested);
-                            }
+                            else Core.WriteLine("There are no bots in the list.", Core.LogType.Requested);
                         }
                         catch (InvalidOperationException x) { Core.WriteLine(x.Message); }
                         break;
@@ -244,6 +244,9 @@ namespace BotScraperV2
             }
         }
 
+        /// <summary>
+        /// Gather bot and worker information and display
+        /// </summary>
         private static void SendStatusInformation()
         {
             if (debug) Core.WriteLine("Gathering bot information...");
@@ -258,6 +261,9 @@ namespace BotScraperV2
             Core.WriteLine(sendString, Core.LogType.Requested);
         }
 
+        /// <summary>
+        /// Worker start method
+        /// </summary>
         private static void Do_Work()
         {
             Core.WriteLine("Worker started...", Core.LogType.Worker);
@@ -304,6 +310,10 @@ namespace BotScraperV2
             Core.WriteLine("Worker stopped...", Core.LogType.Worker);
         }
 
+        /// <summary>
+        ///Uploads the data to the remote servers
+        /// </summary>
+        /// <param name="json"></param>
         private static void UploadJsonToDatabase(string json)
         {
             //if bots are populated, upload.
@@ -315,6 +325,10 @@ namespace BotScraperV2
             else if (debug) Core.WriteLine("Bot data is not populated. Skipping upload...");
         }
 
+        /// <summary>
+        /// Save data to a local file and returns string of json object
+        /// </summary>
+        /// <returns></returns>
         private static string SaveDataToLocalJsonFile()
         {
             string json = "";
@@ -335,12 +349,19 @@ namespace BotScraperV2
             return json;
         }
 
+        /// <summary>
+        /// Clean previous DownloadedData
+        /// </summary>
         private static void CleanData()
         {
             GC.Collect(); // Is this needed?
             downloadedData = new DownloadedData(); // New collector. Begin anew!
         }
 
+        /// <summary>
+        /// Performs work on data as add new bot, remove old bot, update bot.
+        /// </summary>
+        /// <param name="downloadedData"></param>
         private static void PerformWorkOnData(DownloadedData downloadedData)
         {
             List<int> indexesToRemove = new List<int>();
@@ -390,15 +411,24 @@ namespace BotScraperV2
             GC.Collect();
         }
 
+        /// <summary>
+        /// Check if bot is too old
+        /// </summary>
+        /// <param name="i"></param>
+        /// <returns></returns>
         private static bool IsBotTooOld(int i)
         {
-            DateTime lastSeenTime = Core.TranslateLongToDateTime(bots.bot[i].lastSeen);
-            DateTime maxLastSeenTime = Core.TranslateLongToDateTime(bots.bot[i].lastSeen).AddDays(7);
+            DateTime maxLastSeenTime = Core.TranslateLongToDateTime(bots.bot[i].lastSeen).AddDays(Core.maxDaysDifference);
 
-            if (lastSeenTime > maxLastSeenTime) return true;
+            if (DateTime.Now > maxLastSeenTime) return true;
             return false;
         }
 
+        /// <summary>
+        /// Checks if the unique botname already exist
+        /// </summary>
+        /// <param name="botName"></param>
+        /// <returns></returns>
         private static bool DoesBotAlreadyExist(string botName)
         {
             try
