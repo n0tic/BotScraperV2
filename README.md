@@ -1,4 +1,4 @@
-# BotScraperV2
+# BotScraper V2
 ![](http://bytevaultstudio.se/ShareX/CB5qyH6HSc.gif)
 
 This scraper project is the second evolution of BotScraper.
