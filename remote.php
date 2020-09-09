@@ -15,18 +15,9 @@ if(isset($_GET['u']))
 	
 	if(file_exists('bots.json'))
 	{
-		if(file_get_contents('bots.json'))
-		{
-			die(file_get_contents('bots.json'));
-		}
-		else
-		{
-			die("NoContent");
-		}
+		if(file_get_contents('bots.json')) die(file_get_contents('bots.json'));
+		else die("NoContent");
 	}
-    else
-	{
-		die("NoFile");
-	}
+    	else die("NoFile");
 }
 ?>
