@@ -12,7 +12,7 @@ This second evolution of this project was created in order to make it better in 
 
 ###### So, Why did you make this software?
 Most of my recent projects has been involving twitch. Either I have worked with the Twitch API or the Twitch chat (TMI).
-So I wanted to be able to distinguish between real chatters and bots. The API or chatters.json doesnt seperate the bots from the real chaters.
+So I wanted to be able to distinguish between real chatters and bots. The API or chatters.json doesnt seperate the bots from the real chatters.
 This is where I started searching the internet for a solution but I came across a website which had a list. This website used json.
 
 Now, I could use this json data straight of the website BUT it had flaws in my opinion. 
