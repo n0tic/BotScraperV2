@@ -20,9 +20,9 @@ The update frequency was fluxuating heavy and was unreliable in it's updates; Me
 
 This is why I made this software. I made this software to create a more accurate and reliable database of active twitch bots.
 This software will scrape the data and add to my list of unique bots. 
-If the bot doesnt exist it gets added.
-If the bot does exist it gets updated.
-if the bot has not been seen for 7 days it gets marked as inactive and removed from the database.
+- If the bot doesnt exist it gets added.
+- If the bot does exist it gets updated.
+- if the bot has not been seen for 7 days it gets marked as inactive and removed from the database.
 
 It's highly personalized for my needs but it should be pretty easy to modify for anyone interested in some of the base features or methods.
 (This project was made because I was bored and needed to work on something else for a while.)
