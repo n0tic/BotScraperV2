@@ -16,7 +16,7 @@ So I wanted to be able to distinguish between real chatters and bots. The API or
 This is where I started searching the internet for a solution but I came across a website which had a list. This website used json.
 
 Now, I could use this json data straight of the website BUT it had flaws in my opinion. 
-The update frequency was fluxuating heavy and was unreliable in it's updates; Meaning that the data was only accurate for the coming 5 minutes after update.
+The update frequency was fluxuating heavy and was unreliable in it's updates; Meaning that the data was only accurate for about 5 minutes around the update...
 
 This is why I made this software. I made this software to create a more accurate and reliable database of active twitch bots.
 This software will scrape the data and add to my list of unique bots. 
